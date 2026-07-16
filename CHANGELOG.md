@@ -1,5 +1,27 @@
 # Frank Change Log
 
+## 2026-07-16
+
+### Added JWT-based authentication
+- Added `AuthModule`, `AuthController`, and `AuthService` implementing register and login flows.
+- Registration hashes passwords with bcrypt and rejects duplicate emails; login verifies credentials and issues a signed JWT.
+- Added `JwtStrategy` (Passport) and a `GetUser` decorator for pulling the authenticated user out of the request in protected routes.
+- Added `RegisterDto` and `LoginDto` for request validation.
+- Added `bcrypt`, `passport`, `passport-jwt`, `passport-local`, `@nestjs/jwt`, and `@nestjs/passport` dependencies (plus their type packages).
+
+### Added User model and linked it to existing data
+- Added a `User` table (id, email, name, hashed password, createdAt) to the Prisma schema.
+- Added foreign keys so `SetLog` and `RatingHistory` rows belong to a `User`, with cascade delete.
+- Added migration `20260716174156_frank` to apply the new table and relations.
+- Bumped the `prisma` dependency from ^5.4.1 to ^5.22.0.
+
+### Reorganized the backend into a `src/` layout
+- Moved all application source files (`app.module.ts`, `errors.ts`, `main.ts`, `validation.filter.ts`, and the `prisma/`, `ranking/`, `rm-calc/`, and `sets/` modules) under a new `src/` directory.
+- Updated `tsconfig.json` (`rootDir`/`include`) to build from `src/`.
+- Wired the new `AuthModule` into `AppModule` alongside the existing `SetsModule`.
+- Removed committed `dist/` build output from version control and added `dist` to `.gitignore`.
+- Moved `strength_ranking_agent_pipeline.svg` into `docs/`.
+
 ## 2026-07-15
 
 ### Added FRANK-based scoring system
