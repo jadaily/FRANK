@@ -1,0 +1,9 @@
+{
+  "name": "Frank Strength",
+  "short_name": "Frank",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#eff6ff",
+  "theme_color": "#2563eb",
+  "icons": []
+}
