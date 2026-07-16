@@ -9,8 +9,8 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "./src",
     "types": ["node", "jest"]
   },
-  "include": ["**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

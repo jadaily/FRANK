@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  password            String   
+  name                String   
+  createdAt           DateTime @default(now())
+
+  setLogs             SetLog[]
+  ratingHistories     RatingHistory[]
+}
+
 model SetLog {
   id                  Int      @id @default(autoincrement())
   userId              String
@@ -15,6 +26,8 @@ model SetLog {
   reps                Int
   estimatedOneRepMax  Float
   createdAt           DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model RatingHistory {
@@ -24,4 +37,6 @@ model RatingHistory {
   rating    Float
   delta     Float
   createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
