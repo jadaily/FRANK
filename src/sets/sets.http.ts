@@ -1,11 +1,20 @@
 import * as http from 'http';
 import { SetsService } from './sets.service';
+import { RmCalcService } from '../rm-calc/rm-calc.service';
+import { RankingService } from '../ranking/ranking.service';
+
 
 export function createSetLogServer() {
-  const service = new SetsService(undefined as any, undefined as any, {
-    saveSetLog: async (input: any) => ({ id: 1, ...input }),
-    saveRatingHistory: async (input: any) => ({ id: 1, ...input }),
-  } as any);
+  const rmCalcService = new RmCalcService();
+  const rankingService = new RankingService(rmCalcService);
+
+  const service = new SetsService(
+    rmCalcService,
+    rankingService, 
+    {
+      saveSetLog: async (input: any) => ({ id: 1, ...input }),
+      saveRatingHistory: async (input: any) => ({ id: 1, ...input }),
+    } as any);
 
   return http.createServer(async (req, res) => {
     if (req.method === 'POST' && req.url === '/sets') {

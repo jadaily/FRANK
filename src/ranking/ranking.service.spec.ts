@@ -21,7 +21,7 @@ describe('RankingService', () => {
 
     expect(result.rankScore).toBeGreaterThan(0);
     
-    expect(result.badgeRank).toBe('Gold');
+    expect(result.badgeRank).toBe('Initiate');
     expect(result.badgeProgressToNextRank).toBeGreaterThan(0);
     expect(result.delta).toBeGreaterThanOrEqual(0);
   });

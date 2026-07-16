@@ -56,6 +56,8 @@ describe('set logging HTTP endpoint', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toContain('estimatedOneRepMax');
-    expect(response.body).toContain('1500.9');
+
+    expect(response.body).toContain('2361.7');
+    expect(response.body).toContain('493.6');
   });
 });

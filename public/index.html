@@ -1,334 +1,157 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#2563eb" />
-    <link rel="manifest" href="/manifest.json" />
-    <title>Frank Set Logger</title>
-    <style>
-      :root {
-        color-scheme: light;
-        --bg: #0f172a;
-        --card: #ffffff;
-        --text: #0f172a;
-        --muted: #64748b;
-        --accent: #2563eb;
-      }
-      * { box-sizing: border-box; }
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 16px;
-        background: linear-gradient(135deg, #eff6ff, #f8fafc);
-        color: var(--text);
-      }
-      .app {
-        max-width: 640px;
-        margin: 0 auto;
-        padding: 18px;
-        background: var(--card);
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
-      }
-      h1 { margin-top: 0; font-size: 1.5rem; }
-      p { color: var(--muted); }
-      label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.95rem; }
-      input, select, button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 6px;
-        border-radius: 12px;
-        border: 1px solid #cbd5e1;
-        font-size: 1rem;
-      }
-      button {
-        margin-top: 18px;
-        cursor: pointer;
-        background: var(--accent);
-        color: white;
-        border: none;
-        font-weight: 700;
-      }
-      pre {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        padding: 12px;
-        white-space: pre-wrap;
-        border-radius: 12px;
-        overflow-x: auto;
-      }
-      .summary-card {
-        background: linear-gradient(135deg, #eff6ff, #f8fbff);
-        border: 1px solid #bfdbfe;
-        border-radius: 16px;
-        padding: 14px;
-        margin-bottom: 16px;
-      }
-      .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-        margin-top: 10px;
-      }
-      .progress-shell {
-        margin-top: 10px;
-        height: 10px;
-        background: #e2e8f0;
-        border-radius: 999px;
-        overflow: hidden;
-      }
-      .progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #2563eb, #38bdf8);
-        width: 0%;
-        transition: width 0.3s ease;
-      }
-      .summary-item {
-        background: white;
-        border-radius: 12px;
-        padding: 10px;
-      }
-      .summary-item strong { display: block; font-size: 0.9rem; color: var(--muted); }
-      .summary-item span { display: block; margin-top: 4px; font-size: 1rem; font-weight: 700; }
-      .actions { display: flex; gap: 10px; margin-top: 16px; }
-      .actions button { margin-top: 0; }
-      .secondary {
-        background: #e2e8f0;
-        color: var(--text);
-      }
-      .logs {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-      .logs li {
-        padding: 10px 0;
-        border-bottom: 1px solid #e2e8f0;
-        font-size: 0.95rem;
-      }
-      .logs li:last-child { border-bottom: none; }
-      .empty { color: var(--muted); }
-      @media (max-width: 480px) {
-        body { padding: 10px; }
-        .app { padding: 14px; border-radius: 16px; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="app">
-      <h1>Frank Set Logger</h1>
-      <p>Log a set quickly from your phone or browser.</p>
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frank Strength</title>
+  <style>
+    body { font-family: sans-serif; max-width: 480px; margin: 15px auto; padding: 12px; background: #f8fafc; color: #0f172a; }
+    input, select, button { width: 100%; padding: 11px; margin: 4px 0 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 1rem; }
+    button { background: #2563eb; color: white; border: none; font-weight: bold; cursor: pointer; }
+    .hidden { display: none !important; }
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .card { background: #fff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 12px; margin-top: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
+    .stat { background: #f8fafc; border-radius: 8px; padding: 8px; border: 1px solid #e2e8f0; }
+    .stat b { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
+    .stat span { font-size: 1.05rem; font-weight: bold; }
+    .bar-shell { height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin-top: 8px; }
+    .bar { height: 100%; background: #2563eb; width: 0%; transition: width 0.4s ease; }
+  </style>
+</head>
+<body>
 
-      <div id="summary" class="summary-card">
-        <strong>Latest result</strong>
-        <div id="rankBadge" style="margin-top: 8px; font-weight: 700; color: #2563eb;">Badge: —<br/>Current Form: —</div>
-        <div id="frankSummary" style="margin-top: 10px; font-size: 0.95rem; color: var(--muted);">FRANK Score: —</div>
-        <div class="summary-grid">
-          <div class="summary-item"><strong>1RM</strong><span>—</span></div>
-          <div class="summary-item"><strong>Rank Score</strong><span>—</span></div>
-          <div class="summary-item"><strong>Delta</strong><span>—</span></div>
-          <div class="summary-item"><strong>DOTS</strong><span>—</span></div>
-        </div>
-        <div style="margin-top: 10px; font-size: 0.9rem; color: var(--muted);">Progress to next rank</div>
-        <div class="progress-shell"><div id="progressBar" class="progress-bar"></div></div>
-        <div id="progressText" style="margin-top: 6px; font-size: 0.85rem; color: var(--muted);">0%</div>
-      </div>
-
-      <form id="setForm">
-        <label>User ID</label>
-        <input name="userId" value="user-1" />
-
-        <label>Exercise</label>
-        <select name="exercise">
-          <option value="squat">squat</option>
-          <option value="bench press">bench press</option>
-          <option value="deadlift">deadlift</option>
-        </select>
-
-        <label>Weight</label>
-        <input name="weight" type="number" value="100" />
-
-        <label>Reps</label>
-        <input name="reps" type="number" value="5" />
-
-        <label>Sex</label>
-        <select name="sex">
-          <option value="male">male</option>
-          <option value="female">female</option>
-        </select>
-
-        <label>Bodyweight (kg)</label>
-        <input name="bodyweightKg" type="number" value="80" />
-
-        <div class="actions">
-          <button type="submit">Log Set</button>
-          <button type="button" id="clearForm" class="secondary">Clear</button>
-        </div>
+  <!-- AUTH SCREEN -->
+  <div id="authScreen">
+    <div id="loginView">
+      <h2>Sign In</h2>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" required placeholder="Email" />
+        <input type="password" id="loginPassword" required placeholder="Password" />
+        <button type="submit">Login</button>
       </form>
-
-      <h2>Response</h2>
-      <pre id="response">Waiting...</pre>
-
-      <h2>Recent Logs</h2>
-      <ul id="recentLogs" class="logs">
-        <li class="empty">No logs yet.</li>
-      </ul>
+      <p style="text-align:center">New? <a href="#" onclick="toggleView(false)">Create Account</a></p>
     </div>
 
-    <script>
-      const form = document.getElementById('setForm');
-      const response = document.getElementById('response');
-      const summary = document.getElementById('summary');
-      const recentLogs = document.getElementById('recentLogs');
-      const clearButton = document.getElementById('clearForm');
-      const rankBadge = document.getElementById('rankBadge');
-      const frankSummary = document.getElementById('frankSummary');
-      const progressBar = document.getElementById('progressBar');
-      const progressText = document.getElementById('progressText');
-      const storageKey = 'frankRecentLogs';
+    <div id="registerView" class="hidden">
+      <h2>Create Account</h2>
+      <form id="registerForm">
+        <input type="text" id="registerName" required placeholder="Display Name" />
+        <input type="email" id="registerEmail" required placeholder="Email" />
+        <input type="password" id="registerPassword" required minlength="6" placeholder="Password (Min 6)" />
+        <button type="submit">Sign Up</button>
+      </form>
+      <p style="text-align:center">Have an account? <a href="#" onclick="toggleView(true)">Login</a></p>
+    </div>
+    <div id="authError" style="color:red; text-align:center; font-weight:bold"></div>
+  </div>
 
-      function resetForm() {
-        form.reset();
-        const userIdInput = form.querySelector('[name="userId"]');
-        if (userIdInput) {
-          userIdInput.value = 'user-1';
-        }
-      }
+  <!-- APP SCREEN -->
+  <div id="appScreen" class="hidden">
+    <div class="header">
+      <h2 id="welcome">Frank Logger</h2>
+      <button onclick="logOut()" style="width:auto; margin:0; padding:5px 10px; background:#ef4444">Logout</button>
+    </div>
 
-      function validateForm(data) {
-        const errors = [];
-        if (!data.userId) {
-          errors.push('User ID is required.');
-        }
-        if (!Number.isFinite(data.weight) || data.weight <= 0) {
-          errors.push('Weight must be a positive number.');
-        }
-        if (!Number.isFinite(data.reps) || data.reps <= 0 || data.reps > 12) {
-          errors.push('Reps must be between 1 and 12.');
-        }
-        if (!Number.isFinite(data.bodyweightKg) || data.bodyweightKg <= 0) {
-          errors.push('Bodyweight must be a positive number.');
-        }
-        if (!['squat', 'bench press', 'deadlift'].includes(data.exercise)) {
-          errors.push('Exercise is invalid.');
-        }
-        if (!['male', 'female'].includes(data.sex)) {
-          errors.push('Sex is invalid.');
-        }
-        return errors;
-      }
+    <form id="setForm">
+      <select name="exercise"><option value="squat">Squat</option><option value="bench press">Bench Press</option><option value="deadlift">Deadlift</option></select>
+      <input name="weight" type="number" placeholder="Weight (kg)" required />
+      <input name="reps" type="number" placeholder="Reps" required />
+      <select name="sex"><option value="male">Male</option><option value="female">Female</option></select>
+      <input name="bodyweightKg" type="number" placeholder="Bodyweight (kg)" required />
+      <button type="submit">Log Set</button>
+    </form>
 
-      function renderRecentLogs() {
-        const logs = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        if (!logs.length) {
-          recentLogs.innerHTML = '<li class="empty">No logs yet.</li>';
-          return;
-        }
+    <!-- RENDER TARGET FOR BETTER CODES -->
+    <div id="resultCard" class="card hidden">
+      <div style="display:flex; justify-content:space-between; font-weight:bold">
+        <span style="color:#2563eb" id="outBadge">Badge: —</span>
+        <span style="color:#64748b" id="outForm">Form: —</span>
+      </div>
+      <div class="grid">
+        <div class="stat"><b>Estimated 1RM</b><span id="outRm">—</span></div>
+        <div class="stat"><b>Frank Score</b><span id="outFrank">—</span></div>
+        <div class="stat"><b>DOTS Points</b><span id="outDots">—</span></div>
+        <div class="stat"><b>Rank Rating</b><span id="outRating">—</span></div>
+      </div>
+      <div style="margin-top:12px; font-size:0.8rem; color:#64748b; display:flex; justify-content:space-between">
+        <span>Progress to next rank</span><span id="outProgTxt">0%</span>
+      </div>
+      <div class="bar-shell"><div id="outBar" class="bar"></div></div>
+    </div>
+  </div>
 
-        recentLogs.innerHTML = logs
-          .map((entry) => {
-            const result = entry.result || {};
-            return `<li><strong>${entry.exercise}</strong> · ${entry.weight}kg × ${entry.reps} · ${entry.timestamp}<br/>1RM ${result.estimatedOneRepMax?.toFixed(1) ?? '—'} · Rating ${result.rating?.toFixed(1) ?? '—'}</li>`;
-          })
-          .join('');
-      }
+  <script>
+    const url = window.location.origin, authS = document.getElementById('authScreen'), appS = document.getElementById('appScreen');
+    const errBox = document.getElementById('authError'), card = document.getElementById('resultCard');
 
-      function updateSummary(result) {
-        const items = summary.querySelectorAll('.summary-item span');
-        if (items.length >= 4) {
-          items[0].textContent = result.estimatedOneRepMax?.toFixed(1) ?? '—';
-          items[1].textContent = result.rankScore?.toFixed(1) ?? '—';
-          items[2].textContent = result.delta?.toFixed(2) ?? '—';
-          items[3].textContent = result.dots?.toFixed(1) ?? '—';
-        }
+    function toggleView(showLogin) {
+      errBox.textContent = '';
+      document.getElementById('loginView').classList.toggle('hidden', !showLogin);
+      document.getElementById('registerView').classList.toggle('hidden', showLogin);
+    }
 
-        if (rankBadge) {
-          const badgeRank = result.badgeRank || result.rank || result.rankName || '—';
-          const currentFormRank = result.currentFormRank || '—';
-          rankBadge.innerHTML = `Badge: <strong>${badgeRank}</strong><br/>Current Form: <span>${currentFormRank}</span>`;
-        }
+    async function api(path, data, token = '') {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${url}/${path}`, { method: 'POST', headers, body: JSON.stringify(data) });
+      if (res.status === 401) logOut();
+      const txt = await res.text();
+      if (!res.ok) throw new Error(JSON.parse(txt).message || 'Request failed');
+      return JSON.parse(txt);
+    }
 
-        if (frankSummary) {
-          const peak = result.peakFrankScore ?? result.frankScore ?? 0;
-          const current = result.currentFrankScore ?? result.frankScore ?? 0;
-          frankSummary.textContent = `FRANK Score: ${result.frankScore?.toFixed(1) ?? '—'} · Peak ${peak.toFixed(1)} · Current ${current.toFixed(1)}`;
-        }
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const json = await api('auth/login', { email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value });
+        localStorage.setItem('fTkn', json.access_token); localStorage.setItem('fName', json.user.name);
+        checkSession();
+      } catch (err) { errBox.textContent = err.message; }
+    });
 
-        if (progressBar && progressText) {
-          const progress = Math.max(0, Math.min(100, Number(result.badgeProgressToNextRank ?? result.progressToNextRank ?? result.progress ?? 0)));
-          progressBar.style.width = `${progress}%`;
-          const nextBoundary = result.nextRankBoundary ?? result.nextBoundary ?? '—';
-          progressText.textContent = `${progress.toFixed(1)}% to ${nextBoundary}`;
-        }
-      }
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await api('auth/register', { name: document.getElementById('registerName').value, email: document.getElementById('registerEmail').value, password: document.getElementById('registerPassword').value });
+        alert('Account created! Please login.'); toggleView(true);
+      } catch (err) { errBox.textContent = err.message; }
+    });
 
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const data = Object.fromEntries(new FormData(form).entries());
-        data.weight = Number.parseFloat(data.weight);
-        data.reps = Number.parseInt(data.reps, 10);
-        data.bodyweightKg = Number.parseFloat(data.bodyweightKg);
-        data.exercise = data.exercise || 'squat';
-        data.sex = data.sex || 'male';
-        data.userId = String(data.userId || 'user-1').trim();
+    document.getElementById('setForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const fd = new FormData(e.target);
+        const data = { exercise: fd.get('exercise'), sex: fd.get('sex'), weight: parseFloat(fd.get('weight')), reps: parseInt(fd.get('reps')), bodyweightKg: parseFloat(fd.get('bodyweightKg')) };
+        const res = await api('sets', data, localStorage.getItem('fTkn'));
+        
+        // Target explicit output nodes
+        document.getElementById('outBadge').textContent = `Badge: ${res.badgeRank || 'Initiate'}`;
+        document.getElementById('outForm').textContent = `Form: ${res.currentFormRank || 'Initiate'}`;
+        document.getElementById('outRm').textContent = `${(res.estimatedOneRepMax || 0).toFixed(1)} kg`;
+        document.getElementById('outFrank').textContent = (res.frankScore || 0).toFixed(0);
+        document.getElementById('outDots').textContent = (res.dots || 0).toFixed(1);
+        document.getElementById('outRating').textContent = (res.rating || 0).toFixed(1);
+        
+        const pct = Math.max(0, Math.min(100, res.badgeProgressToNextRank || 0));
+        document.getElementById('outBar').style.width = `${pct}%`;
+        document.getElementById('outProgTxt').textContent = `${pct.toFixed(1)}% to ${res.nextRankBoundary || 2499}`;
+        
+        card.classList.remove('hidden');
+      } catch (err) { alert('Error: ' + err.message); }
+    });
 
-        const validationErrors = validateForm(data);
-        if (validationErrors.length) {
-          response.textContent = validationErrors.join('\n');
-          return;
-        }
+    function checkSession() {
+      const token = localStorage.getItem('fTkn'); if (!token) return;
+      authS.classList.add('hidden'); appS.classList.remove('hidden');
+      document.getElementById('welcome').textContent = `Hello, ${localStorage.getItem('fName')} 👋`;
+    }
 
-        response.textContent = 'Sending...';
+    function logOut() {
+      localStorage.clear(); card.classList.add('hidden');
+      appS.classList.add('hidden'); authS.classList.remove('hidden'); toggleView(true);
+    }
 
-        try {
-          const baseUrl = window.location.origin;
-          const res = await fetch(`${baseUrl}/sets`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-
-          const text = await res.text();
-          if (!res.ok) {
-            let message = `Request failed with status ${res.status}`;
-            try {
-              const payload = JSON.parse(text);
-              message = payload.error?.message || payload.message || JSON.stringify(payload);
-            } catch {
-              message = text || message;
-            }
-            throw new Error(message);
-          }
-
-          try {
-            const json = JSON.parse(text);
-            response.textContent = JSON.stringify(json, null, 2);
-            updateSummary(json);
-
-            const logs = JSON.parse(localStorage.getItem(storageKey) || '[]');
-            logs.unshift({
-              ...data,
-              result: json,
-              timestamp: new Date().toLocaleString()
-            });
-            localStorage.setItem(storageKey, JSON.stringify(logs.slice(0, 5)));
-            renderRecentLogs();
-            resetForm();
-          } catch {
-            response.textContent = text;
-          }
-        } catch (err) {
-          response.textContent = 'Error: ' + err.message;
-        }
-      });
-
-      clearButton.addEventListener('click', () => {
-        resetForm();
-        response.textContent = 'Waiting...';
-      });
-
-      renderRecentLogs();
-    </script>
-  </body>
+    checkSession();
+  </script>
+</body>
 </html>
