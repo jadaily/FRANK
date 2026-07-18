@@ -1,9 +1,9 @@
-import { IsIn, IsNumber, Min } from 'class-validator';
+import { IsIn, IsNumber, Min, Max, IsString, IsOptional } from 'class-validator';
 
 export class LogSetDto {
   
-  @IsIn(['squat', 'bench press', 'deadlift'])
-  exercise!: 'squat' | 'bench press' | 'deadlift';
+  @IsString()
+  exercise!: string;
 
   @IsNumber()
   @Min(1)
@@ -11,7 +11,15 @@ export class LogSetDto {
 
   @IsNumber()
   @Min(1)
+  @Max(12)
   reps!: number;
+
+
+  @IsNumber()
+  @Min(6)
+  @Max(10)
+  @IsOptional()
+  rpe?: number;
 
   @IsIn(['male', 'female'])
   sex!: 'male' | 'female';

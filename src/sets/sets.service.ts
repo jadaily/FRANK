@@ -34,6 +34,8 @@ export class SetsService {
     private readonly prisma: {
       saveSetLog: (input: any) => Promise<any>;
       saveRatingHistory: (input: any) => Promise<any>;
+      countLogs: (userId: string, exercise: string) => Promise<number>;
+      getRatingHistoryByExercise: (userId: string, exercise: string) => Promise<any[]>;
     },
   ) {}
 
@@ -42,7 +44,9 @@ export class SetsService {
       throw new BadRequestError('userId is required from authentication layer');
     }
 
-    const rmResult = this.rmCalcService.calculateOneRepMax(input.weight, input.reps);
+    const exerciseSessionCount = await this.prisma.countLogs(userId, input.exercise);
+
+    const rmResult = this.rmCalcService.calculateOneRepMax(input.weight, input.reps);  
     const rankingResult = this.rankingService.calculateRating(
       {
         weight: input.weight,
@@ -50,9 +54,28 @@ export class SetsService {
         sex: input.sex,
         bodyweightKg: input.bodyweightKg,
         exercise: input.exercise,
+        rpe: (input as any).rpe,
       },
-      0,
+      exerciseSessionCount,
     );
+
+    let finalFrankScore = rankingResult.frankScore;
+    let finalBadgeRank = rankingResult.badgeRank;
+    let finalFormProgress = rankingResult.badgeProgressToNextRank;
+
+    if (exerciseSessionCount < 4) {
+      finalBadgeRank = `Placement [${exerciseSessionCount + 1}/5]`;
+      finalFormProgress = 0;
+    } else if (exerciseSessionCount === 4) {
+      const historicalLogs = await this.prisma.getRatingHistoryByExercise(userId, input.exercise);
+      const sumOfPriorScores = historicalLogs.reduce((sum: number, log: any) => sum + (log.rating || 0), 0);
+      const averagedEloScore = (sumOfPriorScores + rankingResult.frankScore) / 5;
+
+      finalFrankScore = Number(averagedEloScore.toFixed(1));
+
+      finalBadgeRank = this.rankingService.determineRankTierFromScore(finalFrankScore);
+      finalFormProgress = rankingResult.badgeProgressToNextRank;
+    }
 
     await this.prisma.saveSetLog({
       userId: userId,
@@ -65,7 +88,7 @@ export class SetsService {
     await this.prisma.saveRatingHistory({
       userId: userId,
       exercise: input.exercise,
-      rating: rankingResult.rating,
+      rating: finalFrankScore,
       delta: rankingResult.delta,
     });
 
@@ -76,14 +99,14 @@ export class SetsService {
       percentile: rankingResult.percentile,
       dots: rankingResult.dots,
       rankScore: rankingResult.rankScore,
-      badgeRank: rankingResult.badgeRank,
-      currentFormRank: rankingResult.currentFormRank,
-      badgeProgressToNextRank: rankingResult.badgeProgressToNextRank,
-      currentFormProgress: rankingResult.currentFormProgress,
+      badgeRank: finalBadgeRank,
+      currentFormRank: finalBadgeRank,
+      badgeProgressToNextRank: finalFormProgress,
+      currentFormProgress: finalFormProgress,
       nextRankBoundary: rankingResult.nextRankBoundary,
       peakDots: rankingResult.peakDots,
       rollingAverageDots: rankingResult.rollingAverageDots,
-      frankScore: rankingResult.frankScore,
+      frankScore: finalFrankScore,
       peakFrankScore: rankingResult.peakFrankScore,
       currentFrankScore: rankingResult.currentFrankScore,
       liftMultipliers: rankingResult.liftMultipliers,

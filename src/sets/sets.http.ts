@@ -2,6 +2,7 @@ import * as http from 'http';
 import { SetsService } from './sets.service';
 import { RmCalcService } from '../rm-calc/rm-calc.service';
 import { RankingService } from '../ranking/ranking.service';
+import { count } from 'console';
 
 
 export function createSetLogServer() {
@@ -12,6 +13,7 @@ export function createSetLogServer() {
     rmCalcService,
     rankingService, 
     {
+      countLogs: async () => 0,
       saveSetLog: async (input: any) => ({ id: 1, ...input }),
       saveRatingHistory: async (input: any) => ({ id: 1, ...input }),
     } as any);

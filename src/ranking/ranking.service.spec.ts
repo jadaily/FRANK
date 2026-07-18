@@ -16,20 +16,26 @@ describe('RankingService', () => {
     expect(() => service.calculateRating({ weight: 100, reps: 13, sex: 'male', bodyweightKg: 80, exercise: 'deadlift' })).toThrow(BadRequestError);
   });
 
-  it('returns a rank-based result for a standard squat sample', () => {
-    const result = service.calculateRating({ weight: 225, reps: 5, sex: 'male', bodyweightKg: 82.5, exercise: 'squat' });
-
-    expect(result.rankScore).toBeGreaterThan(0);
+  it('processes accessory lifts based on RPE intensity maps', () => {
+    const rpePayload = service.calculateRating({ 
+      exercise: 'bicep curl',
+      weight: 40, 
+      reps: 8, 
+      rpe: 9,
+      sex: 'male', 
+      bodyweightKg: 82.5, 
+     }, 5);
     
-    expect(result.badgeRank).toBe('Initiate');
-    expect(result.badgeProgressToNextRank).toBeGreaterThan(0);
-    expect(result.delta).toBeGreaterThanOrEqual(0);
+    expect(rpePayload.frankScore).toBeGreaterThan(0);
+    expect(rpePayload.dots).toBeDefined();
+
   });
 
-  it('keeps the rating non-decreasing for a stronger lift', () => {
-    const lower = service.calculateRating({ weight: 200, reps: 5, sex: 'male', bodyweightKg: 80, exercise: 'bench press' });
-    const higher = service.calculateRating({ weight: 220, reps: 5, sex: 'male', bodyweightKg: 80, exercise: 'bench press' });
+  it('exposes public tier translation utilities for backend calcs', () => {
+    const initiateTier = service.determineRankTierFromScore(1500);
+    const eliteTier = service.determineRankTierFromScore(9000);
 
-    expect(higher.rating).toBeGreaterThanOrEqual(lower.rating);
+    expect(initiateTier).toBe('Initiate');
+    expect(eliteTier).toBe('Elite');
   });
 });

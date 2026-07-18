@@ -24,6 +24,7 @@ model SetLog {
   exercise            String
   weight              Float
   reps                Int
+  rpe                 Float
   estimatedOneRepMax  Float
   createdAt           DateTime @default(now())
 
@@ -35,7 +36,7 @@ model RatingHistory {
   userId    String
   exercise  String
   rating    Float
-  delta     Float
+  isPlaced  Boolean @default(false) 
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

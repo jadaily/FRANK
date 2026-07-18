@@ -20,6 +20,14 @@ import { Prisma } from '@prisma/client';
       inject: [PrismaService],
       useFactory: (prisma: PrismaService) => {
         return {
+          async countLogs(userId: string, exercise: string): Promise<number> {
+            return prisma.setLog.count({
+              where: {
+                userId,
+                exercise,
+              },
+            });
+          },
           async saveSetLog(input: any) {
             return prisma.setLog.create({
               data: {
