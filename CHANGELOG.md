@@ -2,6 +2,12 @@
 
 ## 2026-07-20
 
+### Added CI test automation and stopped tracking `.env`
+- Added `.github/workflows/tests.yml`: on every push (and PRs into `main`), starts the `docker-compose.yml` Postgres container, waits for its healthcheck, runs `prisma generate` + `prisma migrate deploy`, then `npm test`.
+- Added a `pg_isready` healthcheck to the `postgres` service in `docker-compose.yml` so both CI (`docker compose up --wait`) and local dev can tell when the database is actually ready; also dropped the obsolete top-level `version` key.
+- Added `README.md` with the Actions test-status badge at the top plus setup/testing instructions.
+- Removed `.env` from git tracking and added it to `.gitignore` — it was committed with real-looking `DATABASE_URL`/`JWT_SECRET` values; `.env.example` remains as the template.
+
 ### Replaced the generic rank scale with the 21-tier FRANK ranking system
 - Replaced the old 6-rank ELO-style scale (Initiate → Untouchable) with the new 7-rank × 3-tier structure (Stone/Iron/Bronze/Silver/Gold/Platinum/Diamond, each with I/II/III sub-tiers), using per-exercise score cutoffs and rank colors.
 - `RankingService.getRankData` is now per-exercise: each exercise's 6 cutoff values become contiguous rank-band floors, split into equal-width sub-tiers; Diamond's open-ended top tier reuses the width of the Platinum band below it.
