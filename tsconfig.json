@@ -10,7 +10,12 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "rootDir": "./src",
-    "types": ["node", "jest"]
+    "types": [
+      "node",
+      "jest"
+    ]
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts"
+  ]
 }

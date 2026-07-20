@@ -6,11 +6,17 @@ import { JwtModule } from "@nestjs/jwt";
 import { JwtStrategy } from "./jwt.strategy";
 import { PrismaService } from "../prisma/prisma.service";
 
+if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable must be set.');
+}
+
+const JWT_SECRET: string = process.env.JWT_SECRET;
+
 @Module({
     imports: [
         PassportModule.register({defaultStrategy: 'jwt'}),
         JwtModule.register({
-            secret: process.env.JWT_SECRET || 'fallbackSecretChangeInProduction',
+            secret: JWT_SECRET,
             signOptions: { expiresIn: '1d' },
         }),
     ],

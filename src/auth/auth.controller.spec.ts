@@ -95,7 +95,7 @@ describe('Authentication Flow (Login & Register)', () => {
             };
 
             await authController.register(registrationInfo);
-            
+
             const loginPayload = {email: registrationInfo.email, password: registrationInfo.password};
             const response = await authController.login(loginPayload);
 

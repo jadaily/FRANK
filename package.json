@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "test": "jest --runInBand",
-    "build": "tsc -p tsconfig.json",
+    "build": "prisma generate && tsc -p tsconfig.build.json",
     "start": "node dist/main.js"
   },
   "devDependencies": {
@@ -27,7 +27,6 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.0",
     "class-validator": "^0.14.2",
-    "docker": "^1.0.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",

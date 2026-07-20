@@ -21,7 +21,7 @@ async function bootstrap() {
 
   for (const port of portsToTry) {
     try {
-      await app.listen(port);
+      await app.listen(port, '0.0.0.0');
       console.log(`Application listening on port ${port}`);
       return;
     } catch (error) {
