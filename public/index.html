@@ -2,153 +2,419 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Frank Strength</title>
+  <title>FRANK</title>
   <style>
-    body { font-family: sans-serif; max-width: 480px; margin: 15px auto; padding: 12px; background: #f8fafc; color: #0f172a; }
-    input, select, button { width: 100%; padding: 11px; margin: 4px 0 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 1rem; }
-    button { background: #2563eb; color: white; border: none; font-weight: bold; cursor: pointer; }
+    :root { --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --accent: #2563eb; --border: #e2e8f0; --muted: #64748b; }
+    body { font-family: -apple-system, system-ui, sans-serif; background: #e2e8f0; display: flex; justify-content: center; padding: 20px; margin: 0; }
+    .app { background: var(--card); max-width: 420px; width: 100%; border-radius: 28px; padding: 24px; box-shadow: 0 20px 40px rgba(15,23,42,0.1); color: var(--text); position: relative; }
+    .flex-sb { display: flex; justify-content: space-between; align-items: center; }
+    input, select, button { padding: 12px; margin: 4px 0 12px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 1rem; outline: none; box-sizing: border-box; }
+    input::placeholder { color: #94a3b8; }
+    button { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; }
+    .btn-sm { width: auto; margin: 0; padding: 6px 16px; font-size: 0.85rem; border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 20px; }
     .hidden { display: none !important; }
-    .header { display: flex; justify-content: space-between; align-items: center; }
-    .card { background: #fff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 12px; margin-top: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
-    .stat { background: #f8fafc; border-radius: 8px; padding: 8px; border: 1px solid #e2e8f0; }
-    .stat b { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
-    .stat span { font-size: 1.05rem; font-weight: bold; }
-    .bar-shell { height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin-top: 8px; }
-    .bar { height: 100%; background: #2563eb; width: 0%; transition: width 0.4s ease; }
+
+    /* BADGE GRID & INPUT FORMS */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; text-align: center; }
+    .badge { border: 1px solid var(--border); background: linear-gradient(180deg, #fff, #fafafa); border-radius: 16px; padding: 12px; font-size: 0.85rem; font-weight: bold; }
+    .badge span { display: block; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; margin-bottom: 2px; }
+    .badge-label { font-size: 0.8rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .progress-track { height: 5px; background: #e2e8f0; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; border-radius: 4px; background: var(--muted); transition: width 0.3s ease; }
+    #overallRank { font-size: 0.8rem; font-weight: bold; margin-top: 2px; }
+    .form-row { display: grid; grid-template-columns: 1.4fr 0.8fr 0.8fr; gap: 6px; }
+    .form-row input[type="number"] { padding: 12px 4px; font-size: 0.9rem; text-align: center; min-width: 0; }
+    .form-row select { min-width: 0; }
+    .form-row-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; }
+
+    /* PLATEAU TIPS */
+    .plateau-tip { margin-top: 8px; text-align: left; font-size: 0.65rem; }
+    .plateau-tip summary { color: #b45309; font-weight: bold; cursor: pointer; list-style: none; }
+    .plateau-tip summary::-webkit-details-marker { display: none; }
+    .plateau-tip ul { margin: 6px 0 0; padding-left: 16px; color: var(--muted); font-weight: normal; }
+
+    /* HISTORICAL SCROLLER TABS */
+    .tabs { display: flex; gap: 6px; margin: 16px 0; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { background: #f1f5f9; color: var(--muted); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .tab.active { background: #eff6ff; color: var(--accent); }
+    .log-row { background: #f8fafc; border: 1px solid var(--border); padding: 10px 14px; border-radius: 12px; margin-bottom: 6px; font-size: 0.85rem; }
+    .warmup-tag { background: #fef3c7; color: #b45309; font-size: 0.6rem; font-weight: bold; padding: 2px 6px; border-radius: 8px; margin-left: 6px; }
+
+    /* BOTTOM NAV */
+    .bottom-nav { display: flex; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .nav-btn { flex: 1; background: transparent; color: var(--muted); border: none; padding: 8px; margin: 0; font-weight: bold; font-size: 0.85rem; border-radius: 12px; cursor: pointer; }
+    .nav-btn.active { background: #eff6ff; color: var(--accent); }
+
+    /* PROFILE PAGE */
+    .profile-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .profile-row:last-of-type { border-bottom: none; }
+    .profile-label { color: var(--muted); font-size: 0.85rem; }
+    .profile-value { font-weight: bold; text-transform: capitalize; }
+    .profile-section-label { margin-bottom: 8px; font-weight: bold; text-transform: uppercase; font-size: 0.7rem; color: var(--muted); }
+    .checklist-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+    .checklist-row input { width: auto; margin: 0; padding: 0; }
   </style>
 </head>
 <body>
 
-  <!-- AUTH SCREEN -->
-  <div id="authScreen">
-    <div id="loginView">
-      <h2>Sign In</h2>
-      <form id="loginForm">
-        <input type="email" id="loginEmail" required placeholder="Email" />
-        <input type="password" id="loginPassword" required placeholder="Password" />
-        <button type="submit">Login</button>
-      </form>
-      <p style="text-align:center">New? <a href="#" onclick="toggleView(false)">Create Account</a></p>
+  <div class="app">
+    <!-- AUTHENTICATION SCREEN COVER CONTAINER -->
+    <div id="authScreen">
+      <div id="loginView">
+        <h2 style="margin:0 0 12px">FRANK</h2>
+        <form id="loginForm">
+          <input type="email" id="loginEmail" required placeholder="Email Address" />
+          <input type="password" id="loginPassword" required placeholder="Password" />
+          <button type="submit" style="width:100%">Sign In</button>
+        </form>
+        <p style="text-align:center; font-size:0.9rem; color:var(--muted)">New? <a href="#" onclick="toggleAuth(false)" style="color:var(--accent); font-weight:bold">Create Account</a></p>
+      </div>
+      <div id="registerView" class="hidden">
+        <h2 style="margin:0 0 12px">Create Account</h2>
+        <form id="registerForm">
+          <input type="text" id="registerName" required placeholder="Display Name" />
+          <input type="email" id="registerEmail" required placeholder="Email Address" />
+          <input type="password" id="registerPassword" required minlength="6" placeholder="Password (Min 6)" />
+          <select id="registerSex"><option value="male">Male</option><option value="female">Female</option></select>
+          <input type="number" id="registerWeight" required placeholder="Bodyweight (lbs)" />
+          <button type="submit" style="width:100%">Sign Up</button>
+        </form>
+        <p style="text-align:center; font-size:0.9rem; color:var(--muted)">Have an account? <a href="#" onclick="toggleAuth(true)" style="color:var(--accent); font-weight:bold">Sign In</a></p>
+      </div>
+      <div id="authError" style="color:#ef4444; text-align:center; font-weight:bold; font-size:0.85rem; margin-top:8px"></div>
     </div>
 
-    <div id="registerView" class="hidden">
-      <h2>Create Account</h2>
-      <form id="registerForm">
-        <input type="text" id="registerName" required placeholder="Display Name" />
-        <input type="email" id="registerEmail" required placeholder="Email" />
-        <input type="password" id="registerPassword" required minlength="6" placeholder="Password (Min 6)" />
-        <button type="submit">Sign Up</button>
-      </form>
-      <p style="text-align:center">Have an account? <a href="#" onclick="toggleView(true)">Login</a></p>
-    </div>
-    <div id="authError" style="color:red; text-align:center; font-weight:bold"></div>
-  </div>
-
-  <!-- APP SCREEN -->
-  <div id="appScreen" class="hidden">
-    <div class="header">
-      <h2 id="welcome">Frank Logger</h2>
-      <button onclick="logOut()" style="width:auto; margin:0; padding:5px 10px; background:#ef4444">Logout</button>
-    </div>
-
-    <form id="setForm">
-      <select name="exercise"><option value="squat">Squat</option><option value="bench press">Bench Press</option><option value="deadlift">Deadlift</option></select>
-      <input name="weight" type="number" placeholder="Weight (kg)" required />
-      <input name="reps" type="number" placeholder="Reps" required />
-      <select name="sex"><option value="male">Male</option><option value="female">Female</option></select>
-      <input name="bodyweightKg" type="number" placeholder="Bodyweight (kg)" required />
-      <button type="submit">Log Set</button>
-    </form>
-
-    <!-- RENDER TARGET FOR BETTER CODES -->
-    <div id="resultCard" class="card hidden">
-      <div style="display:flex; justify-content:space-between; font-weight:bold">
-        <span style="color:#2563eb" id="outBadge">Badge: —</span>
-        <span style="color:#64748b" id="outForm">Form: —</span>
+    <!-- MAIN CONTROL CENTER INTERFACE -->
+    <div id="appScreen" class="hidden">
+      <div class="flex-sb" style="margin-bottom: 16px;">
+        <div>
+          <h2 style="margin:0">FRANK</h2>
+          <div id="overallRank">—</div>
+        </div>
+        <a href="#" onclick="logOut()" style="color:var(--muted); font-size:1.1rem; text-decoration:none; font-weight:bold">✕</a>
       </div>
-      <div class="grid">
-        <div class="stat"><b>Estimated 1RM</b><span id="outRm">—</span></div>
-        <div class="stat"><b>Frank Score</b><span id="outFrank">—</span></div>
-        <div class="stat"><b>DOTS Points</b><span id="outDots">—</span></div>
-        <div class="stat"><b>Rank Rating</b><span id="outRating">—</span></div>
+
+      <!-- DASHBOARD VIEW -->
+      <div id="dashboardView">
+        <div class="grid-3" id="badgeGrid"></div>
+
+        <form id="setForm">
+          <div class="form-row">
+            <select name="exercise" id="exSelect"></select>
+            <input name="weight" type="number" placeholder="lbs" required />
+            <input name="reps" type="number" placeholder="Reps" required />
+          </div>
+          <div class="form-row-2">
+            <select name="rpe" id="rpeField">
+              <option value="10">RPE 10</option><option value="9">RPE 9</option><option value="8">RPE 8</option>
+            </select>
+            <select name="setType" id="setTypeField">
+              <option value="working">Working</option>
+              <option value="warmup">Warm-up</option>
+            </select>
+          </div>
+          <button type="submit" style="width:100%; margin:4px 0 12px; border-radius:12px">+ Log</button>
+        </form>
+
+        <div class="tabs" id="tabsBox"></div>
+        <div id="logHistoryBox" style="max-height:160px; overflow-y:auto;"></div>
       </div>
-      <div style="margin-top:12px; font-size:0.8rem; color:#64748b; display:flex; justify-content:space-between">
-        <span>Progress to next rank</span><span id="outProgTxt">0%</span>
+
+      <!-- PROFILE VIEW -->
+      <div id="profileView" class="hidden">
+        <div style="border: 1px solid var(--border); border-radius:16px; padding:4px 16px; margin-bottom:16px">
+          <div class="profile-row">
+            <span class="profile-label">Name</span>
+            <span class="profile-value" id="profileName">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-label">Email</span>
+            <span class="profile-value" id="profileEmail" style="text-transform:none">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-label">Sex</span>
+            <span class="profile-value" id="profileSex">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-label">Bodyweight</span>
+            <span class="profile-value" id="profileWeight">— lbs</span>
+          </div>
+        </div>
+
+        <form id="weightForm">
+          <div class="form-row-2">
+            <input name="newWeight" type="number" step="0.1" placeholder="New bodyweight (lbs)" required />
+            <button type="submit">Update</button>
+          </div>
+        </form>
+        <div id="weightUpdateMsg" style="color:var(--accent); text-align:center; font-size:0.85rem; font-weight:bold"></div>
+
+        <div style="border: 1px solid var(--border); border-radius:16px; padding:12px 16px; margin-top:16px">
+          <div class="profile-section-label">Visible on dashboard</div>
+          <div id="hiddenChecklist"></div>
+        </div>
       </div>
-      <div class="bar-shell"><div id="outBar" class="bar"></div></div>
+
+      <!-- BOTTOM NAV -->
+      <div class="bottom-nav">
+        <button class="nav-btn active" id="navDashboard" onclick="switchView('dashboard')">Dashboard</button>
+        <button class="nav-btn" id="navProfile" onclick="switchView('profile')">Profile</button>
+      </div>
     </div>
   </div>
 
   <script>
-    const url = window.location.origin, authS = document.getElementById('authScreen'), appS = document.getElementById('appScreen');
-    const errBox = document.getElementById('authError'), card = document.getElementById('resultCard');
+    const apiHost = window.location.origin, authPanel = document.getElementById('authScreen'), appPanel = document.getElementById('appScreen');
+    const errText = document.getElementById('authError'), exSel = document.getElementById('exSelect'), rpeFld = document.getElementById('rpeField'), logHistoryBox = document.getElementById('logHistoryBox');
+    const badgeGrid = document.getElementById('badgeGrid'), tabsBox = document.getElementById('tabsBox'), hiddenChecklist = document.getElementById('hiddenChecklist');
+    let historicalCachedLogs = [], activeTabToken = 'all', allExercises = [], lastVisibleExerciseKeys = [];
 
-    function toggleView(showLogin) {
-      errBox.textContent = '';
+    function toggleAuth(showLogin) {
+      errText.textContent = '';
       document.getElementById('loginView').classList.toggle('hidden', !showLogin);
       document.getElementById('registerView').classList.toggle('hidden', showLogin);
     }
 
-    async function api(path, data, token = '') {
+    function switchView(view) {
+      document.getElementById('dashboardView').classList.toggle('hidden', view !== 'dashboard');
+      document.getElementById('profileView').classList.toggle('hidden', view !== 'profile');
+      document.getElementById('navDashboard').classList.toggle('active', view === 'dashboard');
+      document.getElementById('navProfile').classList.toggle('active', view === 'profile');
+      if (view === 'profile') {
+        renderProfile();
+        renderHiddenChecklist();
+      }
+    }
+
+    async function api(path, data, token = '', method = 'POST') {
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch(`${url}/${path}`, { method: 'POST', headers, body: JSON.stringify(data) });
-      if (res.status === 401) logOut();
-      const txt = await res.text();
-      if (!res.ok) throw new Error(JSON.parse(txt).message || 'Request failed');
-      return JSON.parse(txt);
+      const res = await fetch(`${apiHost}/${path}`, { method, headers, body: data ? JSON.stringify(data) : null });
+      const txt = await res.text(); let json = JSON.parse(txt);
+      if (!res.ok) { if (res.status === 401 && token) logOut(); throw new Error(Array.isArray(json.message) ? json.message.join(', ') : json.message || json.error); }
+      return json;
     }
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+      e.preventDefault(); errText.textContent = '';
       try {
-        const json = await api('auth/login', { email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value });
-        localStorage.setItem('fTkn', json.access_token); localStorage.setItem('fName', json.user.name);
+        const res = await api('auth/login', { email: document.getElementById('loginEmail').value.trim(), password: document.getElementById('loginPassword').value });
+        localStorage.setItem('fTkn', res.access_token);
+        localStorage.setItem('fName', res.user.name);
+        localStorage.setItem('fEmail', res.user.email);
+        localStorage.setItem('fSex', res.user.sex || '');
+        localStorage.setItem('fWt', res.user.bodyweightLbs || 176);
         checkSession();
-      } catch (err) { errBox.textContent = err.message; }
+      } catch (err) { errText.textContent = err.message; }
     });
 
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+      e.preventDefault(); errText.textContent = '';
       try {
-        await api('auth/register', { name: document.getElementById('registerName').value, email: document.getElementById('registerEmail').value, password: document.getElementById('registerPassword').value });
-        alert('Account created! Please login.'); toggleView(true);
-      } catch (err) { errBox.textContent = err.message; }
+        await api('auth/register', {
+          name: document.getElementById('registerName').value.trim(),
+          email: document.getElementById('registerEmail').value.trim(),
+          password: document.getElementById('registerPassword').value,
+          sex: document.getElementById('registerSex').value,
+          bodyweightLbs: parseFloat(document.getElementById('registerWeight').value)
+        });
+        alert('Account Created!'); toggleAuth(true);
+      } catch (err) { errText.textContent = err.message; }
     });
+
+    // Exercise list drives the log form's select, the history tabs, and the profile
+    // checklist. Adding an exercise to the backend registry needs zero markup changes here.
+    async function loadExerciseRegistry() {
+      if (allExercises.length) return allExercises;
+      const res = await api('sets/exercises', null, '', 'GET');
+      allExercises = res.exercises || [];
+      return allExercises;
+    }
+
+    function renderExerciseSelect() {
+      exSel.innerHTML = allExercises.map(ex => `<option value="${ex.exercise}">${ex.displayName}</option>`).join('');
+      toggleRpeFieldForSelection();
+    }
+
+    function toggleRpeFieldForSelection() {
+      const config = allExercises.find(ex => ex.exercise === exSel.value);
+      rpeFld.classList.toggle('hidden', !!config && config.category === 'compound');
+    }
+
+    exSel.addEventListener('change', toggleRpeFieldForSelection);
+
+    function renderTabs() {
+      tabsBox.innerHTML = `<div class="tab active" data-tab="all">All</div>` +
+        allExercises.map(ex => `<div class="tab" data-tab="${ex.exercise}">${ex.displayName}</div>`).join('');
+      tabsBox.querySelectorAll('.tab').forEach(el => el.addEventListener('click', () => filterTab(el.dataset.tab)));
+    }
+
+    async function initExerciseUI() {
+      await loadExerciseRegistry();
+      renderExerciseSelect();
+      renderTabs();
+    }
 
     document.getElementById('setForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const fd = new FormData(e.target), ex = fd.get('exercise');
+      const config = allExercises.find(x => x.exercise === ex);
+      const data = { exercise: ex, weight: parseFloat(fd.get('weight')), reps: parseInt(fd.get('reps')), setType: fd.get('setType') };
+
+      if (!config || config.category !== 'compound') {
+        data.rpe = parseFloat(fd.get('rpe'));
+      }
+
       try {
-        const fd = new FormData(e.target);
-        const data = { exercise: fd.get('exercise'), sex: fd.get('sex'), weight: parseFloat(fd.get('weight')), reps: parseInt(fd.get('reps')), bodyweightKg: parseFloat(fd.get('bodyweightKg')) };
-        const res = await api('sets', data, localStorage.getItem('fTkn'));
-        
-        // Target explicit output nodes
-        document.getElementById('outBadge').textContent = `Badge: ${res.badgeRank || 'Initiate'}`;
-        document.getElementById('outForm').textContent = `Form: ${res.currentFormRank || 'Initiate'}`;
-        document.getElementById('outRm').textContent = `${(res.estimatedOneRepMax || 0).toFixed(1)} kg`;
-        document.getElementById('outFrank').textContent = (res.frankScore || 0).toFixed(0);
-        document.getElementById('outDots').textContent = (res.dots || 0).toFixed(1);
-        document.getElementById('outRating').textContent = (res.rating || 0).toFixed(1);
-        
-        const pct = Math.max(0, Math.min(100, res.badgeProgressToNextRank || 0));
-        document.getElementById('outBar').style.width = `${pct}%`;
-        document.getElementById('outProgTxt').textContent = `${pct.toFixed(1)}% to ${res.nextRankBoundary || 2499}`;
-        
-        card.classList.remove('hidden');
-      } catch (err) { alert('Error: ' + err.message); }
+        await api('sets', data, localStorage.getItem('fTkn'));
+        e.target.reset();
+        toggleRpeFieldForSelection();
+        syncDashboard();
+        syncHistoryDataLogs();
+      } catch (err) {
+        alert(err.message);
+      }
     });
 
-    function checkSession() {
-      const token = localStorage.getItem('fTkn'); if (!token) return;
-      authS.classList.add('hidden'); appS.classList.remove('hidden');
-      document.getElementById('welcome').textContent = `Hello, ${localStorage.getItem('fName')} 👋`;
+    function renderBadgeGrid(exercises) {
+      badgeGrid.innerHTML = exercises.map(ex => `
+        <div class="badge">
+          <span>${ex.displayName}</span>
+          <div class="badge-label" style="color:${ex.color}">${ex.label}</div>
+          <div class="progress-track"><div class="progress-fill" style="width:${ex.progress}%; background:${ex.color}"></div></div>
+          ${ex.isPlateaued ? `
+            <details class="plateau-tip">
+              <summary>⚠ Plateaued</summary>
+              <ul>${ex.plateauTips.map(tip => `<li>${tip}</li>`).join('')}</ul>
+            </details>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    async function syncDashboard() {
+      try {
+        await loadExerciseRegistry();
+        const res = await api('sets/dashboard', null, localStorage.getItem('fTkn'), 'GET');
+        const exercises = res.exercises || [];
+        lastVisibleExerciseKeys = exercises.map(ex => ex.exercise);
+        renderBadgeGrid(exercises);
+        const overallEl = document.getElementById('overallRank');
+        if (overallEl && res.overall) {
+          overallEl.textContent = `${res.overall.label} · ${res.overall.score}`;
+          overallEl.style.color = res.overall.color;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function syncHistoryDataLogs() {
+      try {
+        const res = await api('sets/history', null, localStorage.getItem('fTkn'), 'GET');
+        historicalCachedLogs = res.logs || [];
+        buildLogRenderRows();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function filterTab(tabToken) {
+      activeTabToken = tabToken;
+      document.querySelectorAll('#tabsBox .tab').forEach(el =>
+        el.classList.toggle('active', el.dataset.tab === tabToken)
+      );
+      buildLogRenderRows();
+    }
+
+    function buildLogRenderRows() {
+      const list = activeTabToken === 'all' ? historicalCachedLogs : historicalCachedLogs.filter(l => l.exercise.toLowerCase() === activeTabToken);
+
+      if (!list.length) {
+        logHistoryBox.innerHTML = `<div style="color:var(--muted); font-size:0.85rem; text-align:center; padding:16px">No logs found</div>`;
+        return;
+      }
+
+      logHistoryBox.innerHTML = list.map(l => `
+        <div class="log-row flex-sb">
+          <div>
+            <b style="text-transform:capitalize; color:var(--accent)">${l.exercise}</b>${l.setType === 'warmup' ? '<span class="warmup-tag">Warm-up</span>' : ''}
+            <br/>
+            <span style="color:var(--muted); font-size:0.75rem">${new Date(l.createdAt).toLocaleDateString()}</span>
+          </div>
+          <div style="font-weight:bold; text-align:right">
+            ${l.weight}lbs × ${l.reps}
+            <br/>
+            <span style="font-weight:normal; font-size:0.75rem; color:var(--muted)">1RM: ${l.estimatedOneRepMax?.toFixed(1)}lbs</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderProfile() {
+      document.getElementById('profileName').textContent = localStorage.getItem('fName') || '—';
+      document.getElementById('profileEmail').textContent = localStorage.getItem('fEmail') || '—';
+      document.getElementById('profileSex').textContent = localStorage.getItem('fSex') || '—';
+      document.getElementById('profileWeight').textContent = `${localStorage.getItem('fWt') || '—'} lbs`;
+    }
+
+    function renderHiddenChecklist() {
+      const visibleSet = new Set(lastVisibleExerciseKeys);
+      hiddenChecklist.innerHTML = allExercises.map(ex => `
+        <label class="checklist-row">
+          <input type="checkbox" data-exercise="${ex.exercise}" ${visibleSet.has(ex.exercise) ? 'checked' : ''} />
+          ${ex.displayName}
+        </label>
+      `).join('');
+
+      hiddenChecklist.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', updateHiddenExercises);
+      });
+    }
+
+    async function updateHiddenExercises() {
+      const hidden = Array.from(hiddenChecklist.querySelectorAll('input[type=checkbox]'))
+        .filter(cb => !cb.checked)
+        .map(cb => cb.dataset.exercise);
+      try {
+        await api('auth/hidden-exercises', { hiddenExercises: hidden }, localStorage.getItem('fTkn'), 'PATCH');
+        syncDashboard();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    document.getElementById('weightForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('weightUpdateMsg'); msg.textContent = '';
+      const newWeight = parseFloat(new FormData(e.target).get('newWeight'));
+      if (isNaN(newWeight)) return;
+      try {
+        const res = await api('auth/weight', { bodyweightLbs: newWeight }, localStorage.getItem('fTkn'), 'PATCH');
+        localStorage.setItem('fWt', res.bodyweightLbs);
+        renderProfile();
+        e.target.reset();
+        msg.textContent = 'Bodyweight updated!';
+        syncDashboard();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    async function checkSession() {
+      if (!localStorage.getItem('fTkn')) return;
+      authPanel.classList.add('hidden');
+      appPanel.classList.remove('hidden');
+      switchView('dashboard');
+      await initExerciseUI();
+      syncDashboard();
+      syncHistoryDataLogs();
     }
 
     function logOut() {
-      localStorage.clear(); card.classList.add('hidden');
-      appS.classList.add('hidden'); authS.classList.remove('hidden'); toggleView(true);
+      localStorage.clear();
+      location.reload();
     }
 
     checkSession();

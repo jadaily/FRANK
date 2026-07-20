@@ -1,4 +1,4 @@
-import { IsEmail, isString, IsString, MinLength } from "class-validator";
+import { IsEmail, IsString, MinLength, IsIn, IsNumber, IsPositive } from "class-validator";
 
 export class RegisterDto {
     @IsEmail({}, { message: 'Please enter a valid email address.' })
@@ -11,4 +11,11 @@ export class RegisterDto {
     @IsString()
     @MinLength(2, { message: 'Name must be at least 2 characters long.'})
     name!: string;
+    
+    @IsIn(['male', 'female'])
+    sex!: 'male' | 'female';
+
+    @IsNumber()
+    @IsPositive()
+    bodyweightLbs!: number;
 }

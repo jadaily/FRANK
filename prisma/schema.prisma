@@ -10,8 +10,11 @@ datasource db {
 model User {
   id                  String   @id @default(uuid())
   email               String   @unique
-  password            String   
-  name                String   
+  password            String
+  name                String
+  sex                 String
+  bodyweightLbs       Float
+  hiddenExercises     String[] @default([])
   createdAt           DateTime @default(now())
 
   setLogs             SetLog[]
@@ -25,6 +28,7 @@ model SetLog {
   weight              Float
   reps                Int
   rpe                 Float
+  setType             String   @default("working")
   estimatedOneRepMax  Float
   createdAt           DateTime @default(now())
 

@@ -28,6 +28,8 @@ export class AuthService {
                 email: dto.email,
                 name: dto.name,
                 password: hashedPassword,
+                sex: dto.sex,
+                bodyweightLbs: dto.bodyweightLbs,
             },
         });
 

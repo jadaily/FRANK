@@ -7,8 +7,6 @@ describe('LogSetDto validation', () => {
     dto.exercise = 'squat';
     dto.weight = 225;
     dto.reps = 5;
-    dto.sex = 'male';
-    dto.bodyweightKg = 82.5;
 
     const errors = await validate(dto);
     expect(errors).toHaveLength(0);
@@ -20,8 +18,6 @@ describe('LogSetDto validation', () => {
     dto.weight = 40;
     dto.reps = 8;
     dto.rpe = 9;
-    dto.sex = 'male';
-    dto.bodyweightKg = 82.5;
 
     const errors = await validate(dto);
     expect(errors).toHaveLength(0);
@@ -33,8 +29,6 @@ describe('LogSetDto validation', () => {
     dto.weight = 0;
     dto.reps = 0;
     dto.rpe = 11;
-    dto.sex = 'other' as any;
-    dto.bodyweightKg = 0;
 
     const errors = await validate(dto);
     expect(errors.length).toBeGreaterThan(0);

@@ -21,10 +21,7 @@ export class LogSetDto {
   @IsOptional()
   rpe?: number;
 
-  @IsIn(['male', 'female'])
-  sex!: 'male' | 'female';
-
-  @IsNumber()
-  @Min(1)
-  bodyweightKg!: number;
+  @IsIn(['working', 'warmup'])
+  @IsOptional()
+  setType?: 'working' | 'warmup';
 }

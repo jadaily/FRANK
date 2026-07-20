@@ -14,6 +14,8 @@ export function createSetLogServer() {
     rankingService, 
     {
       countLogs: async () => 0,
+      findUserProfile: async () => ({sex: 'male', bodyweightLbs: 182}),
+      getRatingHistoryByExercise: async () => [],
       saveSetLog: async (input: any) => ({ id: 1, ...input }),
       saveRatingHistory: async (input: any) => ({ id: 1, ...input }),
     } as any);

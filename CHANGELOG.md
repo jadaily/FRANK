@@ -1,5 +1,31 @@
 # Frank Change Log
 
+## 2026-07-20
+
+### Replaced the generic rank scale with the 21-tier FRANK ranking system
+- Replaced the old 6-rank ELO-style scale (Initiate → Untouchable) with the new 7-rank × 3-tier structure (Stone/Iron/Bronze/Silver/Gold/Platinum/Diamond, each with I/II/III sub-tiers), using per-exercise score cutoffs and rank colors.
+- `RankingService.getRankData` is now per-exercise: each exercise's 6 cutoff values become contiguous rank-band floors, split into equal-width sub-tiers; Diamond's open-ended top tier reuses the width of the Platinum band below it.
+- Added `RankingService.getOverallRankData` to combine every placed exercise's % progress toward its own Diamond-I cutoff into one cumulative/overall rank for the dashboard header, using the spec's generic percentage bands.
+- Recalibrated the three accessory-lift baseline constants (Shoulder, Lat Pulldown, Bicep Curl) so the new, lower per-exercise Diamond cutoffs are still meaningfully hard to reach; all other scoring formulas (DOTS calculation, world-record normalization, RPE intensity map) are unchanged.
+- Added `GET /sets/dashboard` (per-exercise rank/tier/color/progress plus the overall rank) and `GET /sets/history` (filterable log list) — both routes the frontend already called but which previously didn't exist, so they silently 404'd.
+- Rebuilt the dashboard UI in `public/index.html` with colored rank/tier badges, a progress-to-next-tier bar per exercise, and the overall rank in the header.
+
+### Centralized exercise configuration into a single registry
+- Added `src/ranking/exercise-config.ts`: one array of exercise configs (key, display name, category, score cutoffs, and whichever of DOTS/world-record/population-distribution or accessory-baseline data applies). Previously this was scattered across ~7 places in `ranking.service.ts`, 1 in `sets.service.ts`, and ~5 hardcoded spots in the frontend.
+- `public/index.html` now renders the exercise grid, the log form's exercise selector, and the history tabs from a new `GET /sets/exercises` endpoint instead of static markup — adding a new exercise to the backend registry no longer requires any frontend changes.
+
+### Added warm-up vs. working set tracking
+- Added `setType` (`working`/`warmup`, default `working`) to `SetLog`. Warm-up sets are still saved (visible in history, tagged accordingly) but are excluded from scoring, placement-session counting, and PR tracking — only working sets advance placement or move the needle on rank.
+- Added a Working/Warm-up toggle to the log form.
+
+### Added per-user badge visibility preferences
+- Added `hiddenExercises` (string array, default empty) to `User`. New `PATCH /auth/hidden-exercises` endpoint lets a user hide dashboard cards for exercises they don't train; hiding is display-only and doesn't affect the overall/cumulative rank calculation.
+- Added a visibility checklist to the Profile screen.
+
+### Added plateau detection and break-through tips
+- `GET /sets/dashboard` now flags an exercise as plateaued when the last 3 working sessions all failed to beat the personal-best score set before them (requires at least 4 historical sessions to evaluate).
+- Plateaued exercises show an expandable tips list on their dashboard card (add weight/reps, raise RPE, add a set, or deload), pulled from the spec's plateau-breaking guidance.
+
 ## 2026-07-16
 
 ### Added JWT-based authentication

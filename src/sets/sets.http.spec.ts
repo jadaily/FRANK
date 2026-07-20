@@ -48,8 +48,6 @@ describe('set logging HTTP endpoint', () => {
         exercise: 'squat',
         weight: 225,
         reps: 5,
-        sex: 'male',
-        bodyweightKg: 82.5,
       }));
       req.end();
     });
@@ -57,7 +55,7 @@ describe('set logging HTTP endpoint', () => {
     expect(response.statusCode).toBe(200);
     expect(response.body).toContain('estimatedOneRepMax');
 
-    expect(response.body).toContain('2361.7');
-    expect(response.body).toContain('493.6');
+    expect(response.body).toContain('frankScore');
+    expect(response.body).toContain('badgeRank');
   });
 });

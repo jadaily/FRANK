@@ -7,7 +7,7 @@ export interface RatingInput {
   weight: number;
   reps: number;
   sex: Sex;
-  bodyweightKg: number;
+  bodyweightLbs: number;
   exercise: Lift;
 }
 
@@ -31,12 +31,12 @@ export interface RatingResult {
   liftMultipliers: Record<string, number>;
 }
 
-export function calculateDots(weightKg: number, bodyweightKg: number, sex: Sex): number {
-  if (bodyweightKg <= 0) {
+export function calculateDots(weightLbs: number, bodyweightLbs: number, sex: Sex): number {
+  if (bodyweightLbs <= 0) {
     throw new BadRequestError('bodyweight must be positive');
   }
 
   const sexFactor = sex === 'male' ? 1 : 0.92;
-  const ratio = weightKg / bodyweightKg;
+  const ratio = weightLbs / bodyweightLbs;
   return Number((ratio * 100 * sexFactor).toFixed(1));
 }
