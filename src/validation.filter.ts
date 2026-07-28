@@ -4,36 +4,38 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
-  ValidationError,
+  Logger,
 } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 
-@Catch(HttpException)
+@Catch()
 export class ValidationFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  private readonly logger = new Logger(ValidationFilter.name);
+
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const request = ctx.getRequest();
 
-    if (exception instanceof HttpException) {
-      const status = exception.getStatus();
-      const responseBody = exception.getResponse();
+    const status =
+      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
-      const payload = {
-        statusCode: status,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-        error: typeof responseBody === 'string' ? responseBody : responseBody,
-      };
+    const error =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : 'Internal server error';
 
-      response.status(status).json(payload);
-      return;
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      const err = exception instanceof Error ? exception : new Error(String(exception));
+      this.logger.error(`Unhandled error on ${request.method} ${request.url}: ${err.message}`, err.stack);
+      Sentry.captureException(err, { tags: { path: request.url, method: request.method } });
     }
 
-    response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+    response.status(status).json({
+      statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
-      error: 'Internal server error',
+      error,
     });
   }
 }

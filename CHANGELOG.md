@@ -1,6 +1,26 @@
 # Frank Change Log
 
-## 2026-07-20
+## 2026-07-28
+
+### Added Sentry error tracking and a real `/health` endpoint
+- Added `@sentry/node`, initialized in `main.ts` from `SENTRY_DSN` (falls back to a no-op client if unset). Added `SENTRY_DSN` to `.env.example` and `render.yaml` (`sync: false`, set manually in the Render dashboard).
+- `src/health/health.controller.ts` existed as an empty, untracked directory (never actually implemented or wired into `AppModule`); replaced it with a real `HealthController` + `HealthModule`. `GET /health` runs a `SELECT 1` through Prisma, wraps it in a Sentry span, and returns `{ status, uptimeSeconds, durationMs, checks: { database } }`; a failed DB check logs via `Logger.error`, reports to Sentry with a `check: database` tag, and the endpoint responds `503` instead of a false `200`.
+- Broadened `ValidationFilter` from `@Catch(HttpException)` to `@Catch()` so uncaught/non-`HttpException` errors no longer bypass it: any 5xx response is now logged (`Logger.error` with stack) and reported to Sentry (tagged with method/path) before the client gets the same structured JSON error shape used for validation errors.
+
+### Added Sentry crash/error reporting to the mobile app (`frank-strength-ranking`)
+- Added `@sentry/react-native`; `expo install` also auto-registered its config plugin in `app.json` for native builds.
+- Added `metro.config.js` using `getSentryExpoConfig` (the Expo-aware wrapper, not the bare-RN `@react-native/metro-config` snippet from Sentry's default onboarding, which doesn't apply to this managed Expo Router project).
+- `src/app/_layout.tsx` now calls `Sentry.init()` (DSN from `EXPO_PUBLIC_SENTRY_DSN`) at module scope and wraps the root layout with `Sentry.wrap()`. Left out `mobileReplayIntegration`/`feedbackIntegration` — both need a native build (the project runs under Expo Go with no dev client or prebuilt `ios`/`android` folders), so they'd no-op or warn rather than work.
+- Added `EXPO_PUBLIC_SENTRY_DSN` to `.env` and `.env.example`, matching the existing `EXPO_PUBLIC_API_URL` convention (Expo public env vars are bundled client-side and aren't secret, same as a Sentry DSN).
+- Verified with `npx expo export --platform web`: bundles and renders all routes with the new Sentry init in place. Source-map upload during release builds still needs `SENTRY_ORG`/`SENTRY_PROJECT` (or a `sentry.properties` file) — not required for the SDK to capture errors, only for de-minified stack traces in the Sentry dashboard.
+
+### Fixed type errors left over from the Expo SDK 57 → 54 downgrade
+- `AGENTS.md` was still pointing at the v57 docs while `package.json` pins `expo: "54"`; updated it to reference v54 so future API lookups match what's actually installed.
+- `src/hooks/use-theme.ts`, `src/components/app-tabs.tsx`, `src/components/app-tabs.web.tsx`: replaced `scheme === 'unspecified' ? 'light' : scheme` with `scheme ?? 'light'` — the installed `react-native` (0.81.5) types `useColorScheme()` as `'light' | 'dark' | null | undefined`, so `'unspecified'` was comparing against a value the type no longer includes and left `theme` possibly `null`/`undefined` when indexing `Colors[theme]`.
+- `src/components/app-tabs.tsx`: `expo-router` 6.0.24's native-tabs API dropped the nested `NativeTabs.Trigger.Label`/`NativeTabs.Trigger.Icon`; switched to the current top-level `Label`/`Icon` exports from `expo-router/unstable-native-tabs`, and dropped `renderingMode="template"` (not a prop `Icon` accepts anymore).
+- `src/app/explore.tsx`, `src/components/app-tabs.web.tsx`, `src/components/ui/collapsible.tsx`: `expo-symbols`' `SymbolView` takes a single SF Symbol string for `name`, not a per-platform `{ ios, android, web }` object (that shape isn't part of this SDK's API); switched all three to a plain string. SF Symbols still only render on iOS — Android/web fall back to nothing rendered, same as before this fix (a real cross-platform icon would need the `fallback` prop, out of scope here).
+- `src/components/animated-icon.tsx`: `StyleSheet.absoluteFill` is a `RegisteredStyle` (opaque, not spreadable); switched the spread to `StyleSheet.absoluteFillObject`, which is what RN's own types document for this exact use.
+- Verified with `npx tsc --noEmit` (zero errors, was 15) and `npx expo export --platform web` (unchanged output: same 4 routes, same bundle).
 
 ### Added CI test automation and stopped tracking `.env`
 - Added `.github/workflows/tests.yml`: on every push (and PRs into `main`), starts the `docker-compose.yml` Postgres container, waits for its healthcheck, runs `prisma generate` + `prisma migrate deploy`, then `npm test`.
