@@ -54,9 +54,20 @@
     .profile-section-label { margin-bottom: 8px; font-weight: bold; text-transform: uppercase; font-size: 0.7rem; color: var(--muted); }
     .checklist-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
     .checklist-row input { width: auto; margin: 0; padding: 0; }
+
+    /* WAKE-UP OVERLAY (Render free-tier cold start) */
+    #wakeupOverlay { position: fixed; inset: 0; background: #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 100; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #cbd5e1; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #wakeupMsg { color: var(--muted); font-size: 0.9rem; font-weight: bold; text-align: center; padding: 0 20px; max-width: 320px; }
   </style>
 </head>
 <body>
+
+  <div id="wakeupOverlay">
+    <div class="spinner"></div>
+    <p id="wakeupMsg">Waking up the server…</p>
+  </div>
 
   <div class="app">
     <!-- AUTHENTICATION SCREEN COVER CONTAINER -->
@@ -165,7 +176,11 @@
   </div>
 
   <script>
-    const apiHost = window.location.origin, authPanel = document.getElementById('authScreen'), appPanel = document.getElementById('appScreen');
+    // GitHub Pages serves this file from a different origin than the API, so it can't
+    // rely on window.location.origin the way the Nest-served copy at "/" can.
+    const RENDER_API_URL = 'https://frank-strength-ranking-api.onrender.com';
+    const apiHost = ['localhost', '127.0.0.1'].includes(window.location.hostname) ? window.location.origin : RENDER_API_URL;
+    const authPanel = document.getElementById('authScreen'), appPanel = document.getElementById('appScreen');
     const errText = document.getElementById('authError'), exSel = document.getElementById('exSelect'), rpeFld = document.getElementById('rpeField'), logHistoryBox = document.getElementById('logHistoryBox');
     const badgeGrid = document.getElementById('badgeGrid'), tabsBox = document.getElementById('tabsBox'), hiddenChecklist = document.getElementById('hiddenChecklist');
     let historicalCachedLogs = [], activeTabToken = 'all', allExercises = [], lastVisibleExerciseKeys = [];
@@ -417,7 +432,30 @@
       location.reload();
     }
 
-    checkSession();
+    // Render's free tier spins the API down after inactivity; the first request after
+    // that can take 15-50s. Poll /health and keep the spinner up until it responds.
+    async function waitForBackend() {
+      const overlay = document.getElementById('wakeupOverlay');
+      const msg = document.getElementById('wakeupMsg');
+      const startedAt = Date.now();
+
+      while (true) {
+        try {
+          const res = await fetch(`${apiHost}/health`);
+          if (res.ok) break;
+        } catch (e) {
+          // backend still asleep or unreachable, keep retrying
+        }
+        if (Date.now() - startedAt > 8000) {
+          msg.textContent = 'Still waking up the free-tier server… this can take up to a minute.';
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+
+      overlay.classList.add('hidden');
+    }
+
+    waitForBackend().then(checkSession);
   </script>
 </body>
 </html>
