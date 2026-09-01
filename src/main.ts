@@ -16,9 +16,12 @@ Sentry.init({
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
-  origin: 'https://github.io',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  credentials: true,
+    origin: [
+      'https://jadaily.github.io',
+      'https://frank-md9o.onrender.com',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
   });
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.getHttpAdapter().get('/', (_req: any, res: any) => {

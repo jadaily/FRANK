@@ -178,7 +178,11 @@
   <script>
     // GitHub Pages serves this file from a different origin than the API, so it can't
     // rely on window.location.origin the way the Nest-served copy at "/" can.
+<<<<<<< HEAD
     const RENDER_API_URL = 'https://frank-md9o.onrender.com/';
+=======
+    const RENDER_API_URL = 'https://frank-md9o.onrender.com';
+>>>>>>> 4acad0f (updated render)
     const apiHost = ['localhost', '127.0.0.1'].includes(window.location.hostname) ? window.location.origin : RENDER_API_URL;
     const authPanel = document.getElementById('authScreen'), appPanel = document.getElementById('appScreen');
     const errText = document.getElementById('authError'), exSel = document.getElementById('exSelect'), rpeFld = document.getElementById('rpeField'), logHistoryBox = document.getElementById('logHistoryBox');
