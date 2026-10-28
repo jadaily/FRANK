@@ -18,7 +18,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://jadaily.github.io',
-      'https://frank-md9o.onrender.com',
+      'https://frank2-i9cm.onrender.com',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
