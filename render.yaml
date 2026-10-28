@@ -18,6 +18,6 @@ services:
         sync: false
 
 databases:
-  - name: frank2
+  - name: frank2_z2ix
     plan: free
     postgresMajorVersion: 16
